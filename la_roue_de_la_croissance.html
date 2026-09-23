@@ -4,705 +4,633 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>La roue de la croissance - RH</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fdf4ff 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --brand: #0284c7;
-      --brand-hover: #0369a1;
-      --shadow-soft: 0 20px 40px -15px rgba(15, 23, 42, 0.1);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-      max-width: 650px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      background: #e0f2fe;
-      color: #0369a1;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1.2;
-      margin-bottom: 8px;
-    }
-
-    p.subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
-
-    .main-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-      width: 100%;
-      max-width: 1100px;
-    }
-
-    @media (min-width: 900px) {
-      .main-container {
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: center;
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
       }
     }
+  </script>
 
-    /* Conteneur de la Roue */
-    .wheel-wrapper {
-      position: relative;
-      width: min(92vw, 520px);
-      height: min(92vw, 520px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      filter: drop-shadow(0 15px 30px rgba(15, 23, 42, 0.15));
-    }
-
-    canvas#wheelCanvas {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    /* Pointeur / Flèche */
-    .pointer-container {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-    }
-
-    .pointer {
-      width: 0;
-      height: 0;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      border-top: 34px solid #0f172a;
-      transition: transform 0.05s ease-out;
-      transform-origin: top center;
-    }
-
-    .pointer.active {
-      transform: scale(1.15) rotate(-8deg);
-    }
-
-    /* Bouton central TOURNER */
-    .wheel-center-button {
-      position: absolute;
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 0 0 5px #0284c7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: none;
-      outline: none;
-      font-family: inherit;
-      font-weight: 800;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
-      color: #0f172a;
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 5;
-    }
-
-    .wheel-center-button:hover:not(:disabled) {
-      transform: scale(1.08);
-      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35), inset 0 0 0 6px #0369a1;
-    }
-
-    .wheel-center-button:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-
-    .wheel-center-button:disabled {
-      cursor: not-allowed;
-      opacity: 0.9;
-    }
-
-    .wheel-center-button svg {
-      width: 22px;
-      height: 22px;
-      fill: #0284c7;
-      margin-bottom: 2px;
-    }
-
-    /* Panneau latéral */
-    .side-panel {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      padding: 24px;
-      border-radius: 20px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .panel-header h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .items-count {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      background: #f1f5f9;
-      padding: 4px 10px;
-      border-radius: 99px;
-      font-weight: 600;
-    }
-
-    .challenges-list {
-      max-height: 400px;
-      overflow-y: auto;
-      padding-right: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .challenges-list::-webkit-scrollbar {
+  <style>
+    /* Custom scrollbar styling */
+    .custom-scroll::-webkit-scrollbar {
       width: 6px;
     }
-    .challenges-list::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 6px;
-    }
-
-    .challenge-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px;
-      background: #f8fafc;
-      border-radius: 12px;
-      border-left: 5px solid #cbd5e1;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-    }
-
-    .challenge-card:hover {
+    .custom-scroll::-webkit-scrollbar-track {
       background: #f1f5f9;
-      transform: translateX(2px);
+      border-radius: 999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
 
-    .card-content strong {
-      display: block;
-      color: #0f172a;
-      font-size: 0.95rem;
-      margin-bottom: 2px;
+    /* Pointer oscillation physics */
+    .pointer-tick {
+      transform: translateX(-50%) rotate(-14deg) scale(1.1) !important;
+      transition: transform 0.04s ease-out;
     }
-
-    .card-content p {
-      color: #475569;
-      font-size: 0.82rem;
-      line-height: 1.35;
-    }
-
-    /* Fenêtre modale */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(5px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      padding: 20px;
-    }
-
-    .modal-backdrop.open .modal {
-      transform: scale(1) translateY(0);
-    }
-
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal {
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 32px 28px;
-      max-width: 520px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      transform: scale(0.9) translateY(20px);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .modal-tag {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #0284c7;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
-    }
-
-    .modal-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 14px;
-      line-height: 1.25;
-    }
-
-    .modal-desc {
-      font-size: 1.05rem;
-      color: #334155;
-      line-height: 1.6;
-      background: #f8fafc;
-      padding: 16px 20px;
-      border-radius: 14px;
-      margin-bottom: 24px;
-      border: 1px dashed #cbd5e1;
-    }
-
-    .btn-close {
-      background: #0284c7;
-      color: white;
-      border: none;
-      padding: 12px 28px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .btn-close:hover {
-      background: #0369a1;
-    }
-
-    canvas#confettiCanvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 101;
+    .pointer-rest {
+      transform: translateX(-50%) rotate(0deg) scale(1);
+      transition: transform 0.14s ease-in-out;
     }
   </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-emerald-50/50 via-sky-50/40 to-pink-50/40 min-h-screen font-sans text-slate-800 antialiased flex flex-col justify-between selection:bg-teal-100 selection:text-teal-900">
 
-  <header>
-    <div class="badge">Mois de la Santé &amp; Mieux-être RH</div>
-    <h1>La roue de la croissance</h1>
-    <p class="subtitle">Un petit défi. Une petite réflexion. Un petit pas.</p>
+  <header class="w-full bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 text-white flex items-center justify-center shadow-md shadow-teal-500/20 text-lg">
+          🌱
+        </div>
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200/70">
+            Mois de la Santé &amp; Mieux-être RH
+          </span>
+          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+            La roue de la croissance
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="soundBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100/90 hover:bg-slate-200 transition border border-slate-200 cursor-pointer">
+          <i id="soundIcon" class="fa-solid fa-volume-high text-teal-600"></i>
+          <span id="soundLabel" class="hidden sm:inline">Son actif</span>
+        </button>
+      </div>
+    </div>
   </header>
 
-  <div class="main-container">
-    <div class="wheel-wrapper">
-      <div class="pointer-container">
-        <div class="pointer" id="pointer"></div>
+  <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8">
+    
+    <!-- SECTION ROUE -->
+    <section class="w-full lg:w-7/12 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 border border-slate-100 relative">
+      <div class="text-center mb-5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/70 mb-2">
+          <span>✨</span> Un petit défi • Une petite réflexion • Un petit pas
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">La roue de la croissance</h2>
+        <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mt-1">
+          Faites tourner la roue pour découvrir votre action inspirante et bienveillante du jour !
+        </p>
       </div>
-      <canvas id="wheelCanvas" width="900" height="900"></canvas>
-      <button class="wheel-center-button" id="spinBtn" title="Faire tourner la roue">
-        <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
-        TOURNER
+
+      <!-- Cadre de la roue et pointeur -->
+      <div class="relative flex items-center justify-center my-2 select-none">
+        
+        <!-- Pointeur au sommet -->
+        <div id="pointer" class="pointer-rest absolute -top-4 left-1/2 z-20 origin-top drop-shadow-md cursor-default pointer-events-none">
+          <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 44L4 9C2.5 5.5 5 2 9 2H29C33 2 35.5 5.5 34 9L19 44Z" fill="#0f172a"/>
+            <path d="M19 40L6.5 10C5.5 7.5 7.5 5 10.5 5H27.5C30.5 5 32.5 7.5 31.5 10L19 40Z" fill="#0284c7"/>
+            <circle cx="19" cy="14" r="4.5" fill="white"/>
+          </svg>
+        </div>
+
+        <!-- Canvas -->
+        <div class="p-2 sm:p-3 bg-white rounded-full shadow-2xl border-4 border-slate-100 flex items-center justify-center relative">
+          <canvas id="wheelCanvas" width="800" height="800" class="w-[310px] sm:w-[420px] md:w-[470px] aspect-square rounded-full cursor-pointer"></canvas>
+        </div>
+
+        <!-- Bouton central TOURNER -->
+        <button id="centerSpinBtn" class="absolute z-10 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white text-slate-900 shadow-xl border-4 border-teal-500/80 flex flex-col items-center justify-center gap-0.5 hover:scale-105 active:scale-95 transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-4 focus:ring-teal-200">
+          <span class="text-teal-600 text-lg sm:text-xl group-hover:rotate-180 transition-transform duration-500">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </span>
+          <span class="text-[10px] sm:text-[11px] font-black tracking-wider uppercase text-slate-800">TOURNER</span>
+        </button>
+      </div>
+
+      <!-- Bouton principal TOURNER -->
+      <div class="mt-6 w-full max-w-xs">
+        <button id="spinBtn" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-sky-500 hover:from-teal-600 hover:to-sky-600 active:scale-98 text-white font-extrabold text-sm shadow-lg shadow-teal-500/25 transition duration-150 flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Tourner la Roue</span>
+        </button>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-3">Cliquez sur « TOURNER » ou appuyez sur la barre <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] font-mono text-slate-600">Espace</kbd></p>
+    </section>
+
+    <!-- PANNEAU LATÉRAL DES DÉFIS -->
+    <aside class="w-full lg:w-5/12 bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-slate-200/60 border border-slate-100 flex flex-col h-full max-h-[640px]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-teal-600 font-bold"><i class="fa-solid fa-seedling"></i></span>
+          <h3 class="font-bold text-sm uppercase tracking-wider text-slate-700">Défis &amp; Réflexions</h3>
+        </div>
+        <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+          12 défis
+        </span>
+      </div>
+
+      <div id="challengesList" class="overflow-y-auto space-y-2.5 pr-1 custom-scroll flex-1 text-xs">
+        <!-- Rempli par JavaScript -->
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- MODALE RÉSULTAT DU DÉFI -->
+  <div id="resultModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300">
+    <div id="modalBox" class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform scale-90 opacity-0 transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden">
+      
+      <div id="modalBadge" class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border">
+        <span>🌱</span> Défi sélectionné !
+      </div>
+
+      <div id="modalIconContainer" class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-inner">
+        <i class="fa-solid fa-bullseye text-teal-600"></i>
+      </div>
+
+      <h3 id="modalTitle" class="text-2xl font-black text-slate-900 mb-3 leading-snug">
+        <!-- Titre injecté en JS -->
+      </h3>
+
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-6 text-sm text-slate-700 leading-relaxed text-left w-full">
+        <p id="modalDesc" class="font-medium"></p>
+      </div>
+
+      <button id="closeModalBtn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold text-sm shadow-md hover:from-teal-600 hover:to-emerald-700 active:scale-98 transition cursor-pointer">
+        C'est noté, je relève le défi ! ✨
       </button>
     </div>
-
-    <div class="side-panel">
-      <div class="panel-header">
-        <h2>Défis du mois</h2>
-        <span class="items-count" id="itemsCount">12 défis</span>
-      </div>
-      <div class="challenges-list" id="challengesList"></div>
-    </div>
   </div>
 
-  <div class="modal-backdrop" id="resultModal">
-    <div class="modal">
-      <div class="modal-tag">✨ Défi du jour sélectionné !</div>
-      <h3 class="modal-title" id="modalTitle">Titre du défi</h3>
-      <div class="modal-desc" id="modalDesc">Description de l'action à réaliser aujourd'hui.</div>
-      <button class="btn-close" id="closeModalBtn">C'est parti !</button>
-    </div>
-  </div>
+  <!-- Canvas pour les confettis transparents -->
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
 
-  <canvas id="confettiCanvas"></canvas>
+  <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/70 bg-white/40">
+    Programme RH • Mois de la Santé &amp; Mieux-être • Développez votre potentiel au travail
+  </footer>
 
   <script>
-    // URL Web App Google Apps Script
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzdQYrW5fmuCzjihyO_9hQdDsWUxCg__JBV23KvomjJBPPB78Gn2WajGkEUblMyV1V8fg/exec";
-
-    const challenges = [
+    /* Les 12 défis avec textes complets et palette pastelle */
+    const CHALLENGES = [
       {
+        num: "01",
         title: "Faites un petit pas",
         desc: "Identifiez un objectif que vous souhaitez atteindre et posez une petite action concrète aujourd’hui pour vous en rapprocher.",
-        color: "#97ebd2"
+        color: "#97ebd2",
+        border: "#2dd4bf"
       },
       {
+        num: "02",
         title: "Une petite victoire",
         desc: "Prenez une minute pour reconnaître un progrès que vous avez réalisé récemment, même s’il vous semble minime.",
-        color: "#fde047"
+        color: "#fde047",
+        border: "#eab308"
       },
       {
+        num: "03",
         title: "Demandez de la rétroaction",
         desc: "Demandez à un collègue : « As-tu une suggestion qui pourrait m’aider à m’améliorer? »",
-        color: "#c084fc"
+        color: "#c084fc",
+        border: "#a855f7"
       },
       {
+        num: "04",
         title: "1 problème, 3 solutions",
         desc: "Choisissez un problème et trouvez trois solutions possibles avant d’en sélectionner une.",
-        color: "#93c5fd"
+        color: "#93c5fd",
+        border: "#60a5fa"
       },
       {
+        num: "05",
         title: "Votre prochain défi",
         desc: "Identifiez quelque chose que vous aimeriez être capable de faire dans six mois. Quel serait le premier petit pas?",
-        color: "#fdba74"
+        color: "#fdba74",
+        border: "#fb923c"
       },
       {
+        num: "06",
         title: "Transformez l'obstacle",
         desc: "Pensez à une difficulté récente. Qu'est-ce que cette situation peut vous apprendre?",
-        color: "#fed7aa"
+        color: "#fed7aa",
+        border: "#f97316"
       },
       {
+        num: "07",
         title: "Encouragez un collègue",
         desc: "Soulignez un effort, une qualité ou un progrès auprès d'un membre de l'équipe.",
-        color: "#f472b6"
+        color: "#f472b6",
+        border: "#ec4899"
       },
       {
+        num: "08",
         title: "Remplacez « Impossible »",
         desc: "Dites plutôt : « Comment pourrais-je aborder la situation sous un autre angle? »",
-        color: "#e879f9"
+        color: "#e879f9",
+        border: "#d946ef"
       },
       {
+        num: "09",
         title: "Partagez votre savoir",
         desc: "Transmettez une astuce, un outil ou une connaissance utile à un collègue.",
-        color: "#86efac"
+        color: "#86efac",
+        border: "#4ade80"
       },
       {
+        num: "10",
         title: "Apprenez de l'erreur",
         desc: "Repensez à une maladresse récente : quelle leçon précieuse en tirez-vous pour la suite?",
-        color: "#fb923c"
+        color: "#fb923c",
+        border: "#ea580c"
       },
       {
+        num: "11",
         title: "Changez votre perspective",
         desc: "Devant une situation délicate, demandez-vous : « Existe-t-il une autre façon positive de voir ceci? »",
-        color: "#fca5a5"
+        color: "#fca5a5",
+        border: "#f87171"
       },
       {
+        num: "12",
         title: "Sortez de votre zone",
         desc: "Faites une petite chose aujourd'hui que vous avez habituellement tendance à éviter.",
-        color: "#fde68a"
+        color: "#fde68a",
+        border: "#facc15"
       }
     ];
 
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const pointer = document.getElementById("pointer");
-    const modal = document.getElementById("resultModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalDesc = document.getElementById("modalDesc");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-    const challengesListEl = document.getElementById("challengesList");
-    const itemsCountEl = document.getElementById("itemsCount");
+    /* Synthèse sonore mécanique via Web Audio API */
+    let audioCtx = null;
+    let isSoundMuted = false;
 
-    itemsCountEl.textContent = `${challenges.length} défis`;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
 
-    challenges.forEach((ch, idx) => {
-      const card = document.createElement("div");
-      card.className = "challenge-card";
-      card.style.borderLeftColor = ch.color;
+    function playTickSound() {
+      if (isSoundMuted) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(420, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.03);
+
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.035);
+      } catch (e) {}
+    }
+
+    function playFanfare() {
+      if (isSoundMuted) return;
+      try {
+        initAudio();
+        const freqs = [261.63, 329.63, 392.00, 523.25];
+        freqs.forEach((f, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const t = audioCtx.currentTime + (i * 0.09);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t);
+
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.18, t + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(t);
+          osc.stop(t + 0.65);
+        });
+      } catch (e) {}
+    }
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const pointer = document.getElementById('pointer');
+    const spinBtn = document.getElementById('spinBtn');
+    const centerSpinBtn = document.getElementById('centerSpinBtn');
+    const challengesListEl = document.getElementById('challengesList');
+
+    let currentRotation = 0;
+    let isSpinning = false;
+    let lastTickIndex = -1;
+    const totalSegments = CHALLENGES.length;
+    const arcAngle = (2 * Math.PI) / totalSegments;
+
+    // Remplissage du volet latéral
+    CHALLENGES.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = "p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:shadow-xs transition duration-200";
       card.innerHTML = `
-        <div class="card-content">
-          <strong>${idx + 1}. ${ch.title}</strong>
-          <p>${ch.desc}</p>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0" style="background-color: ${item.color}; border: 1.5px solid ${item.border};">
+            ${item.num}
+          </span>
+          <div>
+            <h4 class="font-bold text-slate-800 text-xs">${item.title}</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5 leading-snug">${item.desc}</p>
+          </div>
         </div>
       `;
       challengesListEl.appendChild(card);
     });
 
-    let currentAngle = 0;
-    let isSpinning = false;
-    const numSegments = challenges.length;
-    const arcSize = (2 * Math.PI) / numSegments;
-
     function drawWheel() {
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = canvas.width / 2 - 20;
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = cx - 18;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, w, h);
 
-      challenges.forEach((ch, i) => {
-        const angle = currentAngle + i * arcSize;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(currentRotation);
 
+      for (let i = 0; i < totalSegments; i++) {
+        const angleStart = i * arcAngle;
+        const angleEnd = angleStart + arcAngle;
+        const item = CHALLENGES[i];
+
+        // Tranche
         ctx.beginPath();
-        ctx.fillStyle = ch.color;
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, angle, angle + arcSize);
-        ctx.lineTo(centerX, centerY);
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, angleStart, angleEnd);
+        ctx.closePath();
+        ctx.fillStyle = item.color;
         ctx.fill();
 
+        // Ligne de séparation blanche
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 4;
         ctx.stroke();
 
+        // Texte
         ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angle + arcSize / 2);
+        ctx.rotate(angleStart + arcAngle / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 23px 'Plus Jakarta Sans', sans-serif";
+        ctx.font = "bold 21px 'Plus Jakarta Sans', sans-serif";
 
-        let label = ch.title;
-        if (label.length > 22) {
-          label = label.substring(0, 20) + "…";
+        let label = item.title;
+        if (label.length > 20) {
+          label = label.substring(0, 18) + "...";
         }
-        ctx.fillText(label, radius - 45, 8);
-        ctx.restore();
-      });
+        ctx.fillText(label, radius - 45, 7);
 
+        // Numéro de tranche
+        ctx.beginPath();
+        ctx.arc(radius - 20, 0, 14, 0, 2 * Math.PI);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.strokeStyle = item.border;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 12px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(item.num, radius - 20, 1);
+
+        ctx.restore();
+      }
+
+      // Bordure externe
       ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.arc(0, 0, radius, 0, 2 * Math.PI);
       ctx.strokeStyle = "#0284c7";
       ctx.lineWidth = 8;
       ctx.stroke();
+
+      ctx.restore();
     }
 
     drawWheel();
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playTick() {
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-      }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.04);
+    function triggerPointerTick() {
+      pointer.classList.remove('pointer-rest');
+      pointer.classList.add('pointer-tick');
+      playTickSound();
+      setTimeout(() => {
+        pointer.classList.remove('pointer-tick');
+        pointer.classList.add('pointer-rest');
+      }, 50);
     }
 
-    function playVictoryFanfare() {
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      const notes = [261.63, 329.63, 392.00, 523.25];
-      notes.forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.1 + 0.4);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime + idx * 0.1);
-        osc.stop(audioCtx.currentTime + idx * 0.1 + 0.45);
-      });
-    }
-
-    let startAngle = 0;
-    let targetAngle = 0;
-    let startTime = 0;
-    const spinDuration = 5500;
-    let lastSegmentIndex = -1;
-
-    function easeOutQuart(t) {
-      return 1 - Math.pow(1 - t, 4);
-    }
-
-    function animateSpin(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / spinDuration, 1);
-      const easedProgress = easeOutQuart(progress);
-
-      currentAngle = startAngle + (targetAngle - startAngle) * easedProgress;
-      drawWheel();
-
-      const normalizedAngle = (3 * Math.PI / 2 - currentAngle) % (2 * Math.PI);
-      const positiveAngle = normalizedAngle < 0 ? normalizedAngle + 2 * Math.PI : normalizedAngle;
-      const activeIdx = Math.floor(positiveAngle / arcSize) % numSegments;
-
-      if (activeIdx !== lastSegmentIndex) {
-        lastSegmentIndex = activeIdx;
-        pointer.classList.add("active");
-        setTimeout(() => pointer.classList.remove("active"), 40);
-        playTick();
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(animateSpin);
-      } else {
-        isSpinning = false;
-        spinBtn.disabled = false;
-        showResult(activeIdx);
-      }
-    }
-
-    function spin() {
+    function tourneyLaRoue() {
       if (isSpinning) return;
+      initAudio();
+
       isSpinning = true;
       spinBtn.disabled = true;
+      centerSpinBtn.disabled = true;
+      spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-      startAngle = currentAngle % (2 * Math.PI);
-      const minRounds = 5;
-      const extraRounds = Math.random() * 3;
-      const randomStop = Math.random() * 2 * Math.PI;
-      targetAngle = startAngle + (minRounds + extraRounds) * 2 * Math.PI + randomStop;
-      startTime = 0;
-      requestAnimationFrame(animateSpin);
-    }
+      const startRot = currentRotation;
+      const fullTurns = 5 + Math.floor(Math.random() * 3);
+      const randomStopOffset = Math.random() * 2 * Math.PI;
+      const targetRot = startRot + (fullTurns * 2 * Math.PI) + randomStopOffset;
+      const duration = 5200;
+      const startTime = performance.now();
 
-    spinBtn.addEventListener("click", spin);
-    canvas.addEventListener("click", spin);
+      lastTickIndex = -1;
 
-    function showResult(index) {
-      const winner = challenges[index];
-      modalTitle.textContent = winner.title;
-      modalDesc.textContent = winner.desc;
-      modal.classList.add("open");
-      playVictoryFanfare();
-      launchConfetti();
+      function frame(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
 
-      // Envoi direct vers Google Sheets
-      if (GOOGLE_SHEET_URL) {
-        fetch(GOOGLE_SHEET_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            challengeTitle: winner.title,
-            challengeIndex: index + 1
-          })
-        }).catch(err => console.log("Erreur télémétrie:", err));
+        // Quartic Ease-Out
+        const ease = 1 - Math.pow(1 - progress, 4);
+        currentRotation = startRot + (targetRot - startRot) * ease;
+
+        const pointerPos = (3 * Math.PI / 2 - (currentRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const activeSegment = Math.floor(pointerPos / arcAngle) % totalSegments;
+
+        if (activeSegment !== lastTickIndex) {
+          lastTickIndex = activeSegment;
+          triggerPointerTick();
+        }
+
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          centerSpinBtn.disabled = false;
+          spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+          const finalIdx = Math.floor(pointerPos / arcAngle) % totalSegments;
+          showResult(CHALLENGES[finalIdx]);
+        }
       }
+
+      requestAnimationFrame(frame);
     }
 
-    closeModalBtn.addEventListener("click", () => {
-      modal.classList.remove("open");
+    const modal = document.getElementById('resultModal');
+    const modalBox = document.getElementById('modalBox');
+    const modalBadge = document.getElementById('modalBadge');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalIconContainer = document.getElementById('modalIconContainer');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    function showResult(item) {
+      modalBadge.style.backgroundColor = item.color;
+      modalBadge.style.borderColor = item.border;
+      modalIconContainer.style.backgroundColor = item.color;
+      modalTitle.textContent = `${item.num}. ${item.title}`;
+      modalDesc.textContent = item.desc;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      setTimeout(() => {
+        modalBox.classList.remove('scale-90', 'opacity-0');
+        modalBox.classList.add('scale-100', 'opacity-100');
+      }, 10);
+
+      playFanfare();
+      launchConfetti();
+    }
+
+    function closeModal() {
+      modalBox.classList.add('scale-90', 'opacity-0');
+      modalBox.classList.remove('scale-100', 'opacity-100');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 250);
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
     });
 
-    const confCanvas = document.getElementById("confettiCanvas");
-    const confCtx = confCanvas.getContext("2d");
-    let confettiParticles = [];
+    // Moteur de confettis en Canvas
+    const cCanvas = document.getElementById('confettiCanvas');
+    const cCtx = cCanvas.getContext('2d');
+    let confettiList = [];
+    let isConfettiActive = false;
 
-    function resizeConfettiCanvas() {
-      confCanvas.width = window.innerWidth;
-      confCanvas.height = window.innerHeight;
+    function resizeConfetti() {
+      cCanvas.width = window.innerWidth;
+      cCanvas.height = window.innerHeight;
     }
-    window.addEventListener("resize", resizeConfettiCanvas);
-    resizeConfettiCanvas();
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
 
     function launchConfetti() {
-      confettiParticles = [];
-      const colors = ["#0284c7", "#f43f5e", "#10b981", "#fbbf24", "#a855f7"];
+      confettiList = [];
+      const palette = ['#2dd4bf', '#facc15', '#f472b6', '#38bdf8', '#fb923c', '#c084fc', '#4ade80'];
       for (let i = 0; i < 90; i++) {
-        confettiParticles.push({
+        confettiList.push({
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
-          w: Math.random() * 9 + 4,
-          h: Math.random() * 9 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
           vx: (Math.random() - 0.5) * 18,
-          vy: (Math.random() - 0.7) * 18,
-          gravity: 0.35,
-          rotation: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 10
+          vy: (Math.random() - 0.75) * 18 - 2,
+          size: Math.random() * 8 + 4,
+          color: palette[Math.floor(Math.random() * palette.length)],
+          tilt: Math.random() * 10,
+          tiltSpeed: Math.random() * 0.1 + 0.05,
+          opacity: 1
         });
       }
-      renderConfetti();
-    }
-
-    function renderConfetti() {
-      confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
-      let activeCount = 0;
-
-      confettiParticles.forEach(p => {
-        p.vy += p.gravity;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rotation += p.rotSpeed;
-
-        if (p.y < confCanvas.height) {
-          activeCount++;
-          confCtx.save();
-          confCtx.translate(p.x, p.y);
-          confCtx.rotate((p.rotation * Math.PI) / 180);
-          confCtx.fillStyle = p.color;
-          confCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          confCtx.restore();
-        }
-      });
-
-      if (activeCount > 0) {
-        requestAnimationFrame(renderConfetti);
-      } else {
-        confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+      if (!isConfettiActive) {
+        isConfettiActive = true;
+        requestAnimationFrame(updateConfetti);
       }
     }
+
+    function updateConfetti() {
+      cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+      let active = 0;
+
+      for (let p of confettiList) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.45;
+        p.tilt += p.tiltSpeed;
+        p.opacity -= 0.007;
+
+        if (p.opacity > 0 && p.y < cCanvas.height) {
+          active++;
+          cCtx.save();
+          cCtx.globalAlpha = Math.max(0, p.opacity);
+          cCtx.fillStyle = p.color;
+          cCtx.beginPath();
+          cCtx.ellipse(p.x, p.y, p.size, p.size * Math.cos(p.tilt), 0, 0, 2 * Math.PI);
+          cCtx.fill();
+          cCtx.restore();
+        }
+      }
+
+      if (active > 0) {
+        requestAnimationFrame(updateConfetti);
+      } else {
+        isConfettiActive = false;
+        cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+      }
+    }
+
+    // Gestion du son
+    const soundBtn = document.getElementById('soundBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    const soundLabel = document.getElementById('soundLabel');
+
+    soundBtn.addEventListener('click', () => {
+      isSoundMuted = !isSoundMuted;
+      if (isSoundMuted) {
+        soundIcon.className = 'fa-solid fa-volume-xmark text-slate-400';
+        soundLabel.textContent = 'Son coupé';
+      } else {
+        soundIcon.className = 'fa-solid fa-volume-high text-teal-600';
+        soundLabel.textContent = 'Son actif';
+        initAudio();
+      }
+    });
+
+    // Événements de lancement de la roue
+    spinBtn.addEventListener('click', tourneyLaRoue);
+    centerSpinBtn.addEventListener('click', tourneyLaRoue);
+    canvas.addEventListener('click', tourneyLaRoue);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        tourneyLaRoue();
+      }
+    });
   </script>
 </body>
 </html>
