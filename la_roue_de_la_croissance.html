@@ -180,6 +180,7 @@
   </footer>
 
   <script>
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzdQYrW5fmuCzjihyO_9hQdDsWUxCg__JBV23KvomjJBPPB78Gn2WajGkEUblMyV1V8fg/exec";
     /* Les 12 défis avec textes complets et palette pastelle */
     const CHALLENGES = [
       {
@@ -504,7 +505,7 @@
     const modalIconContainer = document.getElementById('modalIconContainer');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    function showResult(item) {
+    function showResult(item) {  
       modalBadge.style.backgroundColor = item.color;
       modalBadge.style.borderColor = item.border;
       modalIconContainer.style.backgroundColor = item.color;
@@ -521,6 +522,20 @@
 
       playFanfare();
       launchConfetti();
+      // Envoi des statistiques vers Google Sheets
+    try {
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeTitle: item.title,
+          challengeIndex: item.num
+        })
+      });
+    } catch (e) {
+      console.error("Erreur Sheets:", e);
+    }
     }
 
     function closeModal() {
